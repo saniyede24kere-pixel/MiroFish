@@ -1,0 +1,32 @@
+{
+  "name": "MiroFish (official source, Codespaces)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "postCreateCommand": "bash -lc 'set -e; curl -LsSf https://astral.sh/uv/install.sh | sh; export PATH=\"$HOME/.local/bin:$PATH\"; npm run setup:all'",
+  "postStartCommand": "bash -lc 'export PATH=\"$HOME/.local/bin:$PATH\"; if [ -n \"${LLM_API_KEY:-}\" ] && [ -n \"${ZEP_API_KEY:-}\" ]; then nohup npm run dev > /tmp/mirofish-dev.log 2>&1 < /dev/null & else nohup npm run frontend > /tmp/mirofish-frontend.log 2>&1 < /dev/null & fi'",
+  "forwardPorts": [
+    3000,
+    5001
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "MiroFish frontend (private)",
+      "onAutoForward": "notify",
+      "visibility": "private"
+    },
+    "5001": {
+      "label": "MiroFish backend (private)",
+      "onAutoForward": "silent",
+      "visibility": "private"
+    }
+  }
+}
