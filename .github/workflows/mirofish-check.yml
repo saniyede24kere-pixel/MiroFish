@@ -1,0 +1,38 @@
+name: Verify official MiroFish dependencies
+on:
+  push:
+    paths:
+      - '.github/workflows/mirofish-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    name: Build real Vue frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install frontend and root packages
+        run: npm run setup
+      - name: Build actual MiroFish frontend
+        run: npm run build
+  backend:
+    name: Validate real Python backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v6
+      - name: Install upstream backend dependencies
+        run: npm run setup:backend
+      - name: Import app and report missing credentials
+        run: |
+          cd backend
+          uv run python -c "from app import create_app; from app.config import Config; print('MiroFish backend import OK; missing configuration:', Config.validate())"
